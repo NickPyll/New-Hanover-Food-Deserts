@@ -1,0 +1,5 @@
+grocery.coords <- readRDS("grocery.coords.rds")
+zillow_home_value <- readRDS("zillow_home_value.rds")
+zillow_home_value_monthly_diff <- readRDS("zillow_home_value_monthly_diff.rds")
+zillow_value_vs_growth <- readRDS("zillow_value_vs_growth.rds")
+zips_sf <- readRDS("zips_sf.rds")

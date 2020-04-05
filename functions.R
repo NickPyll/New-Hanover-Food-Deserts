@@ -1,3 +1,10 @@
+# create basemap for New Hanover
+nh_base <- get_map(location = c(left = -78.1, bottom = 33.9, right = -77.6, top = 34.41), 
+                   zoom = 13, maptype = 'toner', source = 'stamen')
+
+nb.cols <- 10
+mycolors <- colorRampPalette(brewer.pal(9, "Reds"))(nb.cols)
+
 # Function to grab lat and long
 grab_latlong <- function(place_id, key){
   
@@ -34,9 +41,6 @@ heatmap_helper <- function(df, category){
   
 }
 
-heatmap_helper(grocery.coords, 'grocery') # heat map for grocery
-
-
 # Function to plot zip gradient
 zip_gradient_helper <- function(df, df2, category){
 
@@ -53,5 +57,4 @@ zip_gradient_helper <- function(df, df2, category){
   
 }
 
-zip_gradient_helper(zips_sf, grocery.coords, 'income') # heat map for income by zip
 

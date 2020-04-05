@@ -1,0 +1,21 @@
+# load libraries
+library(googleway)
+library(purrr)
+library(tidyverse)
+library(zoo)
+library(timetk)
+library(forecast)
+library(sweep)
+library(tidyquant)
+library(tigris)
+library(magrittr)
+library(plotly)
+library(ggmap)
+library(ggplot2)
+library(RColorBrewer)
+library(tibble)
+library(sf)
+library(rgdal)
+
+# load functions
+source('functions.R') 
