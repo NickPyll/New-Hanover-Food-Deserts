@@ -304,6 +304,12 @@ x.county <-
 # x.lons <- x.nh_grid_df %>% pull(grid_lon)
 # x.nh_ws <- getwalkscore_bulk(lat_list = lats, lon_list = lons)
 
+# create basemap for New Hanover County
+x.nh_base <- get_map(location = c(left = -78.1, bottom = 33.9, right = -77.6, top = 34.41), 
+                     zoom = 13, maptype = 'toner', source = 'stamen')
+
+
+
 #### Save RDS ####
 saveRDS(x.grocery.coords, file = "grocery.coords.rds") 
 saveRDS(x.zhvi, file = "zillow_home_value.rds")   
@@ -314,6 +320,7 @@ saveRDS(x.county, file = "county_metrics.rds")
 saveRDS(x.nh_ws, file = "nh_walkscoredata.rds")  
 saveRDS(x.nh, file = "nh_basic_map.rds")  
 saveRDS(x.fd_sf, file = "food_desert_shapes.rds")
+saveRDS(x.nh_base, file = "nh_base_ggmap.rds")
 
 # remove unnecessary objects
 rm(list = ls(pattern = "^x"))

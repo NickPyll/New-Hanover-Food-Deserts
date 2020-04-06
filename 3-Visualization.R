@@ -1,7 +1,7 @@
 #### Maps ####
 
 heatmap_helper(grocery.coords, 'grocery') # heat map for grocery
-zip_gradient_helper(zips_sf, grocery.coords, 'income') # heat map for income by zip
+zip_gradient_helper(zips_sf, grocery.coords, food.desert_sf, 'income') # heat map for income by zip
 
 # Create heatmaps for mobility
 walkscore %>%
@@ -16,7 +16,7 @@ walkscore %>%
   geom_tile(aes(x = snapped_lon, y = snapped_lat, fill = Score, 
                 interpolate = TRUE, na.remove = FALSE)) +
   scale_fill_gradientn(colours = brewer.pal(7, "Oranges")) + 
-  geom_sf(data = data.shape, color = 'black', alpha = 0) +
+  geom_sf(data = food.desert_sf, color = 'black', alpha = 0) +
   facet_grid(cols = vars(score_type)) +
   theme(
     legend.key.size = unit(1, "cm"),
@@ -112,4 +112,7 @@ x.county_raw_cor <- cor(x.county_raw)
 colnames(x.county_raw_cor) <- c('Poverty %', 'Poverty % (u17)', 'Household Income', 'Population Growth', 'Education (18-24)', 'Unemployed %')
 rownames(x.county_raw_cor) <- c('Poverty %', 'Poverty % (u17)', 'Household Income', 'Population Growth', 'Education (18-24)', 'Unemployed %')
 corrplot(x.county_raw_cor, type = 'lower', diag = FALSE)
+
+# remove unnecessary objects
+rm(list = ls(pattern = "^x"))
 

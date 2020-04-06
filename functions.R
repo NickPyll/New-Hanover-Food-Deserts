@@ -27,7 +27,7 @@ heatmap_helper <- function(df, category){
     # Add points
     geom_point(data = df, aes(x = long, y = lat), 
                fill = "red", shape = 23, alpha = 0.4) + 
-    geom_sf(data = data.shape, color = 'black', alpha = 0, inherit.aes = FALSE) +
+    geom_sf(data = food.desert_sf, color = 'black', alpha = 0, inherit.aes = FALSE) +
     guides(fill = FALSE, alpha = FALSE) +
     labs(y = "Latitude", x = "Longitude") 
   
@@ -35,13 +35,16 @@ heatmap_helper <- function(df, category){
   
 }
 
+# create 10 color version of 'Reds' palette
+mycolors <- colorRampPalette(brewer.pal(9, "Reds"))(10)
+
 # Function to plot zip gradient
-zip_gradient_helper <- function(df, df2, category){
+zip_gradient_helper <- function(df, df2, df3, category){
 
   ggmap(nh_base) +
     geom_sf(data = df, aes(fill = as.factor(avg_agi_stub)), 
             inherit.aes = FALSE, lwd = .2) +
-    # geom_sf(data = data.shape, color = 'black', alpha = 0, inherit.aes = FALSE) +
+    geom_sf(data = df3, color = 'black', size = 1, fill = NA, inherit.aes = FALSE) +
     scale_fill_manual(values = mycolors) +
     coord_sf(crs = st_crs(4326)) +
     geom_point(data = df2, aes(x = long, y = lat), fill = "red", shape = 23) + 
@@ -51,6 +54,9 @@ zip_gradient_helper <- function(df, df2, category){
   ggsave(filename = paste0("./", category, "coords.png"))
   
 }
+
+zip_gradient_helper(zips_sf, grocery.coords, food.desert_sf, 'income') # heat map for income by zip
+
 
 # Function to calculate walkscore
 getwalkscore <- function(lat, lon){
