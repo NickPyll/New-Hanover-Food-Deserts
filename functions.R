@@ -41,6 +41,7 @@ zip_gradient_helper <- function(df, df2, category){
   ggmap(nh_base) +
     geom_sf(data = df, aes(fill = as.factor(avg_agi_stub)), 
             inherit.aes = FALSE, lwd = .2) +
+    # geom_sf(data = data.shape, color = 'black', alpha = 0, inherit.aes = FALSE) +
     scale_fill_manual(values = mycolors) +
     coord_sf(crs = st_crs(4326)) +
     geom_point(data = df2, aes(x = long, y = lat), fill = "red", shape = 23) + 

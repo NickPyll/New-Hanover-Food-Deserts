@@ -6,4 +6,4 @@ zips_sf <- readRDS("zips_sf.rds")
 county_metric <- readRDS("county_metrics.rds")
 walkscore <- readRDS("nh_walkscoredata.rds")
 nh_basic_map <- readRDS("nh_basic_map.rds")  
-
+food.desert_sf <- readRDS("food_desert_shapes.rds")

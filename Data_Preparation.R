@@ -1,5 +1,7 @@
 #### Grocery Data ####
 
+x.fd_sf <- st_read("/Users/pylypiw/Documents/New Hanover Raw Data/zow2iDfy9w_poly.shp") 
+
 # Run Once, but then output to .RDS to stop continuous calls to API
 x.grocery <- google_places(location = c(34.255050, -77.870416), # lat long for Wilmington
                            place_type = "grocery_or_supermarket",
@@ -311,6 +313,7 @@ saveRDS(x.zhvi_growth, file = "zillow_value_vs_growth.rds")
 saveRDS(x.county, file = "county_metrics.rds")   
 saveRDS(x.nh_ws, file = "nh_walkscoredata.rds")  
 saveRDS(x.nh, file = "nh_basic_map.rds")  
+saveRDS(x.fd_sf, file = "food_desert_shapes.rds")
 
 # remove unnecessary objects
 rm(list = ls(pattern = "^x"))
