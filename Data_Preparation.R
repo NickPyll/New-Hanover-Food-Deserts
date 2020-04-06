@@ -71,34 +71,6 @@ x.zhvi <-
   gather(date, median, 8:294, na.rm = TRUE) %>%
   mutate(date = as.Date(as.yearmon(date)))
 
-# # monthly median home values for NH county
-# x.zhvi_county <-
-#   read_csv("/Users/pylypiw/Documents/New Hanover Raw Data/County_Zhvi_AllHomes.csv") %>%
-#   filter(RegionName == 'New Hanover County') %>%
-#   gather(date, median, 8:294, na.rm = TRUE) %>%
-#   mutate(date = as.Date(as.yearmon(date)))
-# 
-# # monthly "typical 5th to 35th percentile" home values for NH county
-# x.zhvi_county_bottom <- 
-#   read_csv("/Users/pylypiw/Documents/New Hanover Raw Data/County_Zhvi_BottomTier.csv") %>%
-#   filter(RegionName == 'New Hanover County') %>%
-#   gather(date, median_bottom, 8:294, na.rm = TRUE) %>%
-#   mutate(date = as.Date(as.yearmon(date)))
-# 
-# # monthly "typical 65th to 95th percentile" home values for NH county
-# x.zhvi_county_top <- 
-#   read_csv("/Users/pylypiw/Documents/New Hanover Raw Data/County_Zhvi_TopTier.csv") %>%
-#   filter(RegionName == 'New Hanover County') %>%
-#   gather(date, median_top, 8:294, na.rm = TRUE) %>%
-#   mutate(date = as.Date(as.yearmon(date)))
-
-# # calculations
-# mid = x.zhvi_county %>% filter(date >= '2019-01-01') %>% summarize(mean = mean(median)) %>% pull()
-# bottom = x.zhvi_county_bottom %>% filter(date >= '2019-01-01') %>% summarize(mean = mean(median_bottom)) %>% pull()
-# top = x.zhvi_county_top %>% filter(date >= '2019-01-01') %>% summarize(mean = mean(median_top)) %>% pull()
-# bottom_multiplier = bottom/mid
-# top_multiplier = top/mid
-
 # create range assumptions
 x.zhvi_full <-
   x.zhvi %>%
@@ -246,9 +218,99 @@ x.zhvi_growth <-
                mutate(pct_low_income = low / (low + high)),
              by = 'RegionName')
 
+#### County Data ####
+
+# census.gov
+x.poverty_data <- read_csv("/Users/pylypiw/Documents/New Hanover Raw Data/est18-nc_clean.csv")
+x.population_data <- read_csv("/Users/pylypiw/Documents/New Hanover Raw Data/co-est2019-annres-37_clean.csv") %>%
+  clean_names()
+
+# American community survey
+x.education_data <- read_csv("/Users/pylypiw/Documents/New Hanover Raw Data/ACSST1Y2018.S1501_data_with_overlays_2020-04-05T121851_clean.csv") %>%
+  clean_names()
+
+# us bureau of labor statistics
+x.unemployment_data <- read_csv("/Users/pylypiw/Documents/New Hanover Raw Data/laucnty18_clean.csv") %>%
+  clean_names() %>%
+  filter(state_fips == 37)
+
+# combine county data
+x.county <-
+  x.poverty_data %>%
+  filter(county != 'North Carolina') %>%
+  select(county, poverty_pop_pct, poverty_pop_u17_pct, median_household) %>%
+  inner_join(x.population_data %>%
+               filter(geographic_area != 'North Carolina') %>%
+               mutate(county = str_remove(geographic_area, "."),
+                      county = str_remove(county, ", North Carolina")) %>%
+               gather('year', 'population', x2010:x2019) %>%
+               mutate(year = as.numeric(str_remove(year, "x"))) %>%
+               group_by(county) %>%
+               mutate(lag_population = dplyr::lag(population, n = 1, default = NA)) %>%
+               mutate(percent_diff = 100*(population - lag_population)/lag_population) %>%
+               summarize(mean_annual_population_growth = mean(percent_diff, na.rm = TRUE)) %>%
+               ungroup() %>%
+               mutate(pop_growth_rank = rank(-mean_annual_population_growth)),
+             by = 'county') %>%
+  left_join(x.education_data %>%
+              mutate(county = str_remove(geographic_area_name, ", North Carolina"),
+                     pct_18_24_less_hs = pop_18_24_less_hs / pop_18_24,
+                     pct_18_24_hs_equiv = pop_18_24_hs_equiv / pop_18_24,
+                     pct_18_24_some_college_assdeg = pop_18_24_some_college_assdeg / pop_18_24,
+                     pct_18_24_bach = pop_18_24_bach / pop_18_24,
+                     educated_18_24 = 
+                       rescale(
+                         (1*pop_18_24_less_hs +
+                            2*pop_18_24_hs_equiv +
+                            3*pop_18_24_some_college_assdeg +
+                            4*pop_18_24_bach)/pop_18_24)) %>%
+              select(county, educated_18_24),
+            by = 'county') %>%
+  inner_join(x.unemployment_data %>%
+               mutate(county = str_remove(county_name_state_abbreviation, ", NC"),
+                      unemployed_pct = unemployed/labor_force) %>%
+               select(county, unemployed_pct),
+             by = 'county') %>%
+  mutate(poverty_pop_pct_rank = rank(poverty_pop_pct),
+         poverty_pop_u17_pct_rank = rank(poverty_pop_u17_pct), 
+         median_household_rank = rank(-median_household),
+         educated_18_24_rank = rank(-educated_18_24),
+         educated_18_24_rank = if_else(educated_18_24_rank > 41, 42, educated_18_24_rank),
+         unemployed_pct_rank = rank(unemployed_pct)) %>%
+  replace_na(list(educated_18_24 = 0)) %>%
+  select(county,
+         poverty_pop_pct, poverty_pop_pct_rank,
+         poverty_pop_u17_pct, poverty_pop_u17_pct_rank,
+         median_household, median_household_rank,
+         mean_annual_population_growth, pop_growth_rank,
+         educated_18_24, educated_18_24_rank,
+         unemployed_pct, unemployed_pct_rank)
+
+#### Walkscore Data #### 
+# Commented out to restrict going over call limit
+# x.nh <- st_read("/Users/pylypiw/Documents/New Hanover Raw Data/wFP0KoyUoJ_poly.shp") 
+
+# x.nh_grid_df <- nh %>% 
+#   st_make_grid(cellsize = 0.01, what = "centers") %>%
+#   st_coordinates() %>% 
+#   as.data.frame() %>%
+#   mutate(pt_id = row_number()) %>%
+#   rename(grid_lon = X) %>%
+#   rename(grid_lat = Y)
+
+# x.lats <- x.nh_grid_df %>% pull(grid_lat)
+# x.lons <- x.nh_grid_df %>% pull(grid_lon)
+# x.nh_ws <- getwalkscore_bulk(lat_list = lats, lon_list = lons)
+
 #### Save RDS ####
 saveRDS(x.grocery.coords, file = "grocery.coords.rds") 
 saveRDS(x.zhvi, file = "zillow_home_value.rds")   
 saveRDS(x.zhvi_lag, file = "zillow_home_value_monthly_diff.rds")   
 saveRDS(x.zips_sf, file = "zips_sf.rds") 
 saveRDS(x.zhvi_growth, file = "zillow_value_vs_growth.rds")   
+saveRDS(x.county, file = "county_metrics.rds")   
+saveRDS(x.nh_ws, file = "nh_walkscoredata.rds")  
+saveRDS(x.nh, file = "nh_basic_map.rds")  
+
+# remove unnecessary objects
+rm(list = ls(pattern = "^x"))

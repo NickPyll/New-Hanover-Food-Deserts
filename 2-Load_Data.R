@@ -3,3 +3,7 @@ zillow_home_value <- readRDS("zillow_home_value.rds")
 zillow_home_value_monthly_diff <- readRDS("zillow_home_value_monthly_diff.rds")
 zillow_value_vs_growth <- readRDS("zillow_value_vs_growth.rds")
 zips_sf <- readRDS("zips_sf.rds")
+county_metric <- readRDS("county_metrics.rds")
+walkscore <- readRDS("nh_walkscoredata.rds")
+nh_basic_map <- readRDS("nh_basic_map.rds")  
+
