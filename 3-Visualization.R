@@ -1,7 +1,7 @@
 #### Maps ####
 
-heatmap_helper(grocery.coords, 'grocery') # heat map for grocery
-zip_gradient_helper(zips_sf, grocery.coords, food.desert_sf, 'income') # heat map for income by zip
+heatmap_helper(grocery.coords, nh_base, 'grocery') # heat map for grocery
+zip_gradient_helper(zips_sf, grocery.coords, food.desert_sf, nh_base, 'income') # heat map for income by zip
 
 # Create heatmaps for mobility
 walkscore %>%
@@ -56,7 +56,7 @@ home_value_diff_zip <-
           x = ~date, y = ~percent_diff, 
           color = ~RegionName, type = 'scatter', mode = 'lines', colors = 'Paired') %>%
   layout(xaxis = list(title = "Date"),
-         yaxis = list(title = "Median Home Value")) %>%
+         yaxis = list(title = "Median Home Value Yearly Change (%)")) %>%
   layout(
     xaxis = list(titlefont = list(size = 18), 
                  tickfont = list(size = 15)), 
@@ -64,6 +64,38 @@ home_value_diff_zip <-
                  tickfont = list(size = 15),
                  tickformat = '$,'))
 home_value_diff_zip
+
+# plot monthly change in median home value by zip, highlighting Castle Hayne
+hv_diff_castle_hayne <- 
+  plot_ly(zillow_home_value_monthly_diff_wide, x = ~date) %>%
+  add_trace(y = ~zip28401, name = '28401', type = 'scatter', mode = 'lines',
+            line = list(color = 'rgba(220, 220, 220, 1)', width = 1)) %>%
+  add_trace(y = ~zip28403, name = '28403', type = 'scatter', mode = 'lines',
+            line = list(color = 'rgba(220, 220, 220, 1)', width = 1)) %>%
+  add_trace(y = ~zip28405, name = '28405', type = 'scatter', mode = 'lines',
+            line = list(color = 'rgba(220, 220, 220, 1)', width = 1)) %>%
+  add_trace(y = ~zip28409, name = '28409', type = 'scatter', mode = 'lines',
+            line = list(color = 'rgba(220, 220, 220, 1)', width = 1)) %>%
+  add_trace(y = ~zip28411, name = '28411', type = 'scatter', mode = 'lines',
+            line = list(color = 'rgba(220, 220, 220, 1)', width = 1)) %>%
+  add_trace(y = ~zip28412, name = '28412', type = 'scatter', mode = 'lines',
+            line = list(color = 'rgba(220, 220, 220, 1)', width = 1)) %>%
+  add_trace(y = ~zip28428, name = '28428', type = 'scatter', mode = 'lines',
+            line = list(color = 'rgba(220, 220, 220, 1)', width = 1)) %>%
+  add_trace(y = ~zip28449, name = '28449', type = 'scatter', mode = 'lines',
+            line = list(color = 'rgba(220, 220, 220, 1)', width = 1)) %>%
+  add_trace(y = ~zip28480, name = '28480', type = 'scatter', mode = 'lines',
+            line = list(color = 'rgba(220, 220, 220, 1)', width = 1)) %>%
+  add_trace(y = ~zip28429, name = '28429', type = 'scatter', mode = 'lines',
+            line = list(color = '#FF7F00', width = 4)) %>%
+  layout(
+    legend = list(font = list(size = 14)),
+    xaxis = list(title = "Date", showline = FALSE, zeroline = FALSE,
+                 titlefont = list(size = 18),
+                 tickfont = list(size = 16)),
+    yaxis = list (title = "Yearly Change in Median Home Price (%)",
+                  showgrid = FALSE))
+hv_diff_castle_hayne
 
 #### Bubble Plot ####
 
@@ -111,7 +143,7 @@ x.county_raw <-
 x.county_raw_cor <- cor(x.county_raw)
 colnames(x.county_raw_cor) <- c('Poverty %', 'Poverty % (u17)', 'Household Income', 'Population Growth', 'Education (18-24)', 'Unemployed %')
 rownames(x.county_raw_cor) <- c('Poverty %', 'Poverty % (u17)', 'Household Income', 'Population Growth', 'Education (18-24)', 'Unemployed %')
-corrplot(x.county_raw_cor, type = 'lower', diag = FALSE)
+corrplot(x.county_raw_cor, type = 'lower')
 
 # remove unnecessary objects
 rm(list = ls(pattern = "^x"))

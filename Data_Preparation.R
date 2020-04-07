@@ -90,6 +90,12 @@ x.zhvi_lag <-
   select(RegionName, date, percent_diff) %>%
   ungroup()
 
+# manipulate data for plotly trace graph
+x.zhvi_wide <- 
+  x.zhvi_lag %>%
+  spread(RegionName, percent_diff) %>%
+  rename_at(vars(-date), funs(paste0("zip", .)))
+
 # manipulate data for multiple time series
 # nest by group
 x.zhvi_lag_nest <- 
@@ -308,8 +314,6 @@ x.county <-
 x.nh_base <- get_map(location = c(left = -78.1, bottom = 33.9, right = -77.6, top = 34.41), 
                      zoom = 13, maptype = 'toner', source = 'stamen')
 
-
-
 #### Save RDS ####
 saveRDS(x.grocery.coords, file = "grocery.coords.rds") 
 saveRDS(x.zhvi, file = "zillow_home_value.rds")   
@@ -321,6 +325,7 @@ saveRDS(x.nh_ws, file = "nh_walkscoredata.rds")
 saveRDS(x.nh, file = "nh_basic_map.rds")  
 saveRDS(x.fd_sf, file = "food_desert_shapes.rds")
 saveRDS(x.nh_base, file = "nh_base_ggmap.rds")
+saveRDS(x.zhvi_wide, file = "zillow_home_value_monthly_diff_wide.rds")
 
 # remove unnecessary objects
 rm(list = ls(pattern = "^x"))
