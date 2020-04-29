@@ -32,7 +32,7 @@ heatmap_helper <- function(df, basemap, category){
     guides(fill = FALSE, alpha = FALSE) +
     labs(y = "Latitude", x = "Longitude") 
   
-  ggsave(filename = paste0("./", category, "coords.png"))
+  ggsave(filename = paste0("./data/", category, "coords.png"))
   
 }
 
@@ -52,7 +52,7 @@ zip_gradient_helper <- function(df, df2, df3, basemap,category){
     guides(fill = FALSE, alpha = FALSE) +
     labs(y = "Latitude", x = "Longitude")
   
-  ggsave(filename = paste0("./", category, "coords.png"))
+  ggsave(filename = paste0("./data/", category, "coords.png"))
   
 }
 

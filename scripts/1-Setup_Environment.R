@@ -23,5 +23,5 @@ library(glue)
 library(httr)
 
 # load functions
-source('functions.R') 
+source('./scripts/functions.R') 
 
